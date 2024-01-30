@@ -1,6 +1,7 @@
 <?php
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Auth\ClientController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -11,3 +12,9 @@ use Illuminate\Support\Facades\Route;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+Route::controller(ClientController::class)->prefix('auth/client')->group( function () {
+    Route::post('/login','login');
+    Route::post('/register', 'register');
+    Route::post('/logout','logout');
+    Route::get('/client-profile', 'clientProfile');
+});

@@ -1,9 +1,11 @@
 <?php
-namespace App\Http\Controllers;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+namespace App\Http\Controllers\Auth;
 use App\Models\Admin;
-use Validator;
+use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
+
 
 class AdminController extends Controller
 {
@@ -13,7 +15,7 @@ class AdminController extends Controller
      * @return void
      */
     public function __construct() {
-        $this->middleware('auth:api', ['except' => ['login', 'register']]);
+        $this->middleware('auth:admin', ['except' => ['login', 'register']]);
     }
     /**
      * Get a JWT via given credentials.
@@ -34,37 +36,37 @@ class AdminController extends Controller
         return $this->createNewToken($token);
     }
     /**
-     * Register a User.
+     * Register a admin.
      *
      * @return \Illuminate\Http\JsonResponse
      */
     public function register(Request $request) {
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|between:2,100',
-            'email' => 'required|string|email|max:100|unique:users',
-            'password' => 'required|string|confirmed|min:6',
+            'email' => 'required|string|email|max:100|unique:admins',
+            'password' => 'required|string|min:6',
         ]);
         if($validator->fails()){
             return response()->json($validator->errors()->toJson(), 400);
         }
-        $user = Admin::create(array_merge(
+        $admin = Admin::create(array_merge(
                     $validator->validated(),
                     ['password' => bcrypt($request->password)]
                 ));
         return response()->json([
-            'message' => 'User successfully registered',
-            'user' => $user
+            'message' => 'Admin successfully registered',
+            'admin' => $admin
         ], 201);
     }
 
     /**
-     * Log the user out (Invalidate the token).
+     * Log the admin out (Invalidate the token).
      *
      * @return \Illuminate\Http\JsonResponse
      */
     public function logout() {
         auth()->logout();
-        return response()->json(['message' => 'User successfully signed out']);
+        return response()->json(['message' => 'Admin successfully signed out']);
     }
     /**
      * Refresh a token.
@@ -72,14 +74,14 @@ class AdminController extends Controller
      * @return \Illuminate\Http\JsonResponse
      */
     public function refresh() {
-        return $this->createNewToken(auth()->refresh());
+       // return $this->createNewToken(auth()->refresh());
     }
     /**
-     * Get the authenticated User.
+     * Get the authenticated admin.
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function userProfile() {
+    public function adminProfile() {
         return response()->json(auth()->user());
     }
     /**
@@ -93,8 +95,8 @@ class AdminController extends Controller
         return response()->json([
             'access_token' => $token,
             'token_type' => 'bearer',
-            'expires_in' => auth()->factory()->getTTL() * 60,
-            'user' => auth()->user()
+           // 'expires_in' => auth()->factory()->getTTL() * 60,
+            'Admin' => auth()->guard('admin')->user()
         ]);
     }
 }
